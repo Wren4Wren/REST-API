@@ -11,3 +11,20 @@ exports.signUp = async (req, res) => {
     res.send({ error });
   }
 };
+
+exports.checkDetails = async (res) => {
+  try {
+    res.send({ user: req.user.userName });
+  } catch (error) {
+    console.log(error);
+    res.send({ error });
+  }
+};
+
+exports.updateDetails = async (res) => {
+  try {
+  } catch (error) {
+    console.log(error);
+    res.send(error);
+  }
+};
