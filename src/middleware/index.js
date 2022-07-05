@@ -16,9 +16,14 @@ exports.hashPass = async (req, res, next) => {
 
 exports.unHashPass = async (req, res, next) => {
   try {
-    req.user = await User.find({ username: req.body.username });
-    const dataFeed = await bcrypt.compare(req.body.password, req.user.password);
+    const hashedPass = req.body.password;
+    const unHashPass = await bcrypt.compare(req.body.password, hashedPass);
+    req.body.password = unHashPass;
+    req.body.password = await bcrypt.compare(req.body.password, User.password);
     next();
+    // } else {
+    //   throw new Error("Incorrect deets");
+    // }
   } catch (error) {
     console.log(error);
     res.send({ error });

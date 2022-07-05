@@ -12,14 +12,17 @@ exports.signUp = async (req, res) => {
   }
 };
 
-exports.login = async (res) => {
+exports.login = async (req, res) => {
   try {
     const user = await User.findOne({
       username: req.body.username,
+      email: req.body.email,
     });
     if (!user) {
       throw new Error("Incorrect credentials");
-    } else res.send({ user });
+    } else {
+      res.send({ user });
+    }
   } catch (error) {
     console.log(error);
     res.send({ error });
