@@ -4,7 +4,7 @@ exports.signUp = async (req, res) => {
   //REQUEST FIRST, RESPONSE SECOND!!!
   try {
     // req.body //post info to server
-    const newUser = await User.create(req.body); //requ.body contains key value(k/v) pairs that match my user model
+    const newUser = await User.create(req.body); //req.body contains key value(k/v) pairs that match my user model
     res.send({ user: newUser });
   } catch (error) {
     console.log(error);
@@ -12,9 +12,14 @@ exports.signUp = async (req, res) => {
   }
 };
 
-exports.checkDetails = async (res) => {
+exports.login = async (res) => {
   try {
-    res.send({ user: req.user.userName });
+    const user = await User.findOne({
+      username: req.body.username,
+    });
+    if (!user) {
+      throw new Error("Incorrect credentials");
+    } else res.send({ user });
   } catch (error) {
     console.log(error);
     res.send({ error });
