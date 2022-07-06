@@ -16,16 +16,39 @@ exports.hashPass = async (req, res, next) => {
 
 exports.unHashPass = async (req, res, next) => {
   try {
-    const hashedPass = req.body.password;
-    const unHashPass = await bcrypt.compare(req.body.password, hashedPass);
-    req.body.password = unHashPass;
-    req.body.password = await bcrypt.compare(req.body.password, User.password);
-    next();
-    // } else {
-    //   throw new Error("Incorrect deets");
-    // }
+    const verifyPass = await User.findOne({ username: req.body.username });
+    console.log(verifyPass);
+    const checkPass = await bcrypt.compare(
+      req.body.password,
+      verifyPass.password
+    );
+    if (checkPass) {
+      console.log("Login successful");
+      next();
+    } else {
+      throw new Error("Incorrect deets");
+    }
   } catch (error) {
     console.log(error);
     res.send({ error });
+  }
+};
+
+exports.check = async (req, res, next) => {
+  try {
+    const checkUsers = await User.findOne({ username: req.body.username });
+    console.log(checkUsers);
+    const checkPass = await bcrypt.compare(
+      req.body.password,
+      checkUsers.password
+    );
+    if (checkPass) {
+      next();
+    } else {
+      throw new Error("Password incorrect");
+    }
+  } catch (error) {
+    console.log(error);
+    res.send(error);
   }
 };

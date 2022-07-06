@@ -1,4 +1,6 @@
 const User = require("./model");
+const bcrypt = require("bcryptjs");
+// Create
 
 exports.signUp = async (req, res) => {
   //REQUEST FIRST, RESPONSE SECOND!!!
@@ -12,11 +14,12 @@ exports.signUp = async (req, res) => {
   }
 };
 
+// Read
+
 exports.login = async (req, res) => {
   try {
     const user = await User.findOne({
       username: req.body.username,
-      email: req.body.email,
     });
     if (!user) {
       throw new Error("Incorrect credentials");
@@ -29,8 +32,25 @@ exports.login = async (req, res) => {
   }
 };
 
-exports.updateDetails = async (res) => {
+// Update
+
+exports.update = async (req, res) => {
   try {
+  } catch (error) {
+    console.log(error);
+    res.send(error);
+  }
+};
+
+// Delete
+
+exports.delete = async (req, res) => {
+  try {
+    const remove = await User.findOneAndDelete({
+      username: req.params.username,
+    });
+    console.log(`${req.body.username} has been deleted`);
+    res.e;
   } catch (error) {
     console.log(error);
     res.send(error);
