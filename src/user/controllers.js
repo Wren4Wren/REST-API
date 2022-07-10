@@ -50,15 +50,15 @@ exports.listUsers = async (req, res) => {
 
 exports.changePassword = async (req, res) => {
   try {
-    // Check if the middleware has authenticated the request based on current password
+    // Check if the middleware has auth'd the request
     if (!req.user) {
       throw new Error("Invalid credentials");
     } else {
-      // search database for record matching provided request body, store it to variable
+      // search database for record matching req.body, store it to variable
       // Then set the password hashed by the middleware
       const user = await User.updateOne(
         { username: req.body.username },
-        { pass: req.user.newPass }
+        { password: req.user.newPass }
       );
       res.send({ user });
     }
