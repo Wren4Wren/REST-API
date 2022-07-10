@@ -1,5 +1,6 @@
 const bcrypt = require("bcryptjs");
 const User = require("../user/model");
+const jwt = require("jsonwebtoken");
 
 exports.hashPass = async (req, res, next) => {
   try {
@@ -14,15 +15,11 @@ exports.hashPass = async (req, res, next) => {
   }
 };
 
-exports.unHashPass = async (req, res, next) => {
+exports.checkPass = async (req, res, next) => {
   try {
-    const verifyPass = await User.findOne({ username: req.body.username });
-    console.log(verifyPass);
-    const checkPass = await bcrypt.compare(
-      req.body.password,
-      verifyPass.password
-    );
-    if (checkPass) {
+    req.user = await User.findOne({ username: req.body.username }); // Searches for username or email in database
+
+    if (await bcrypt.compare(req.body.password, req.user.password)) {
       console.log("Login successful");
       next();
     } else {
@@ -34,21 +31,17 @@ exports.unHashPass = async (req, res, next) => {
   }
 };
 
-exports.check = async (req, res, next) => {
+exports.tokenCheck = async (req, res, next) => {
   try {
-    const checkUsers = await User.findOne({ username: req.body.username });
-    console.log(checkUsers);
-    const checkPass = await bcrypt.compare(
-      req.body.password,
-      checkUsers.password
+    //decode token using same secret that created the token
+    const decodedToken = jwt.verify(
+      req.header("Authorization"),
+      process.env.SECRET
     );
-    if (checkPass) {
-      next();
-    } else {
-      throw new Error("Password incorrect");
-    }
+    req.user = await User.findById(decodedToken.id); //finding the user by their id, stored in the token
+    next();
   } catch (error) {
     console.log(error);
-    res.send(error);
+    res.send({ error });
   }
 };
