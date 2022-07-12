@@ -78,6 +78,7 @@ exports.changePassword = async (req, res) => {
       updatePass,
       message: `Password update for ${req.body.username}`,
     });
+
     // send the result of the update command
   } catch (error) {
     console.log(error);
