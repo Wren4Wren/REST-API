@@ -1,6 +1,6 @@
 const User = require("./model");
-const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+
 // Create
 
 exports.signUp = async (req, res) => {
@@ -16,16 +16,16 @@ exports.signUp = async (req, res) => {
   }
 };
 
-// Read
+// Log in
 
 exports.login = async (req, res) => {
   try {
-    const user = await User.findOne(req.body);
-    if (!user) {
+    if (!req.user) {
       // If the user is in the db
       throw new Error("User not found");
     } else {
-      res.send({ user });
+      // Send the user object as a request
+      res.send({ user: req.user });
     }
     // We be sensible devs
   } catch (error) {
@@ -34,15 +34,35 @@ exports.login = async (req, res) => {
   }
 };
 
-//Also read
+//Read - find all the users
 
 exports.listUsers = async (req, res) => {
   try {
-    const users = await User.find({});
-    res.send({ users });
+    // Find the user object in the body
+    const users = await User.find(req.body);
+    if (!users) {
+      throw new Error("User not located");
+    } else {
+      res.send({ users });
+    }
   } catch (error) {
     console.log(error);
     res.send({ error });
+  }
+};
+
+//Read - find one user {params}
+exports.findUser = async (req, res) => {
+  try {
+    const user = await User.findOne({ username: req.params.username });
+    if (!user) {
+      throw new Error("Invalid information");
+    } else {
+      res.send({ user });
+    }
+  } catch (error) {
+    console.log(error);
+    res.send(error);
   }
 };
 
@@ -50,18 +70,14 @@ exports.listUsers = async (req, res) => {
 
 exports.changePassword = async (req, res) => {
   try {
-    // Check if the middleware has authenticated the request based on current password
-    if (!req.user) {
-      throw new Error("Invalid credentials");
-    } else {
-      // search database for record matching provided request body, store it to variable
-      // Then set the password hashed by the middleware
-      const user = await User.updateOne(
-        { username: req.body.username },
-        { pass: req.user.newPass }
-      );
-      res.send({ user });
-    }
+    const updatePass = await User.updateOne(
+      { username: req.body.username },
+      { $set: { password: req.body.password } }
+    );
+    res.send({
+      updatePass,
+      message: `Password update for ${req.body.username}`,
+    });
     // send the result of the update command
   } catch (error) {
     console.log(error);
@@ -76,7 +92,7 @@ exports.deleteUser = async (req, res) => {
     const remove = await User.findOneAndDelete({
       username: req.params.username,
     });
-    console.log(`${req.body.username} has been deleted`);
+    console.log("User has been deleted");
     res.send({ remove });
   } catch (error) {
     console.log(error);
