@@ -50,18 +50,15 @@ exports.listUsers = async (req, res) => {
 
 exports.changePassword = async (req, res) => {
   try {
-    // Check if the middleware has auth'd the request
-    if (!req.user) {
-      throw new Error("Invalid credentials");
-    } else {
-      // search database for record matching req.body, store it to variable
-      // Then set the password hashed by the middleware
-      const user = await User.updateOne(
-        { username: req.body.username },
-        { password: req.user.newPass }
-      );
-      res.send({ user });
-    }
+    const updatePass = await User.updateOne(
+      { username: req.body.username },
+      { $set: { password: req.body.password } }
+    );
+    res.send({
+      updatePass,
+      message: `Password update for ${req.body.username}`,
+    });
+
     // send the result of the update command
   } catch (error) {
     console.log(error);
